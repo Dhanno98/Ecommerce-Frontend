@@ -80,7 +80,7 @@ function ProductViewModal({open, setOpen, product, isAvailable}) {
                     <div className="px-6 py-4 flex justify-end gap-4">
                         <button onClick={() => setOpen(false)}
                             type="button"
-                            className='px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-700 hover:text-slate-800 hover:border-slate-800 rounded-md'
+                            className='px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-700 hover:text-slate-800 hover:border-slate-800 rounded-md cursor-pointer'
                         >
                             Close
                         </button>
