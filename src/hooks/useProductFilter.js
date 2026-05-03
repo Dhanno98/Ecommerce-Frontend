@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { dashboardProductsAction, fetchProducts } from "../store/actions";
 
@@ -38,6 +38,10 @@ const useProductFilter = () => {
 };
 
 export const useDashboardProductFilter = () => {
+
+    const { user } = useSelector((state) => state.auth);
+    const isAdmin = user && user?.roles?.includes("ROLE_ADMIN");
+
     const [searchParams] = useSearchParams();
     const dispatch = useDispatch();
 
@@ -51,7 +55,7 @@ export const useDashboardProductFilter = () => {
         params.set("pageNumber", currentPage - 1);
 
         const queryString = params.toString();
-        dispatch(dashboardProductsAction(queryString));
+        dispatch(dashboardProductsAction(queryString, isAdmin));
 
     }, [dispatch, searchParams]);
 };
