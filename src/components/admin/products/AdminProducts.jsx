@@ -25,6 +25,9 @@ const AdminProducts = () => {
             pagination?.pageNumber + 1 || 1
     );
 
+    const { user } = useSelector((state) => state.auth);
+    const isAdmin = user && user?.roles?.includes("ROLE_ADMIN");
+
     const dispatch = useDispatch();
 
     const [selectedProduct, setSelectedProduct] = useState('');
@@ -56,6 +59,8 @@ const AdminProducts = () => {
       }
     });
 
+    const isAvailable = selectedProduct?.quantity && Number(selectedProduct.quantity) > 0;
+
     const handleEdit = (product) => {
       setSelectedProduct(product);
       setOpenUpdateModal(true);
@@ -84,7 +89,7 @@ const AdminProducts = () => {
     };
 
     const onDeleteHandler = () => {
-      dispatch(deleteProduct(setLoader, selectedProduct?.id, toast, setOpenDeleteModal));
+      dispatch(deleteProduct(setLoader, selectedProduct?.id, toast, setOpenDeleteModal, isAdmin));
     };
 
     const emptyProduct = !products || products?.length === 0;
@@ -184,6 +189,7 @@ const AdminProducts = () => {
         open={openProductViewModal}
         setOpen={setOpenProductViewModal}
         product={selectedProduct}
+        isAvailable={isAvailable}
       />
       </div>
     )

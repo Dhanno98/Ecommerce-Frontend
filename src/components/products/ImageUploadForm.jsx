@@ -3,10 +3,13 @@ import React, { useRef, useState } from 'react'
 import { FaCloudUploadAlt } from 'react-icons/fa'
 import Spinners from '../shared/Spinners';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateProductImageFromDashboard } from '../../store/actions';
 
 const ImageUploadForm = ({ setOpen, product }) => {
+    const { user } = useSelector((state) => state.auth);
+    const isAdmin = user && user?.roles?.includes("ROLE_ADMIN");
+
     const fileInputRef = useRef();
     const [loader, setLoader] = useState(false);
     const [previewImage, setPreviewImage] = useState(null);
@@ -39,7 +42,7 @@ const ImageUploadForm = ({ setOpen, product }) => {
         const formData = new FormData();
         formData.append("image", selectedFile);
 
-        dispatch(updateProductImageFromDashboard(formData, product.id, toast, setLoader, setOpen));
+        dispatch(updateProductImageFromDashboard(formData, product.id, toast, setLoader, setOpen, isAdmin));
     };
 
     const handleClearImage = () => {
