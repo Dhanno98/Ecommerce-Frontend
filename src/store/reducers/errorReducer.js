@@ -4,6 +4,7 @@ const initialState = {
     categoryLoader: false,
     categoryError: null,
     btnLoader: false,
+    addingProductId: null,
 };
 
 export const errorReducer = (state = initialState, action) => {
@@ -51,7 +52,16 @@ export const errorReducer = (state = initialState, action) => {
                 categoryError: null,
                 errorMessage: null,
             };
-
+        case "ADD_TO_CART_LOADING":
+            return {
+                ...state,
+                addingProductId: action.payload,
+            };
+        case "ADD_TO_CART_FINISHED":
+            return {
+                ...state,
+                addingProductId: null,
+            };
         default:
             return state;
     }

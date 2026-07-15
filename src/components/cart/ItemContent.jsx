@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { HiOutlineTrash } from "react-icons/hi";
 import SetQuantity from "./SetQuantity";
 import { useDispatch } from "react-redux";
@@ -18,23 +17,15 @@ const ItemContent = ({
     specialPrice,
     cartId,
 }) => {
-    const [currentQuantity, setCurrentQuantity] = useState(quantity);
     const dispatch = useDispatch();
 
     const handleQtyIncrease = (cartItems) => {
-        dispatch(increaseCartQuantity(
-            cartItems,
-            toast,
-            currentQuantity,
-            setCurrentQuantity
-        ));
+        dispatch(increaseCartQuantity(cartItems,toast));
     };
 
     const handleQtyDecrease = (cartItems) => {
-        if (currentQuantity > 1) {
-            const newQuantity = currentQuantity - 1;
-            setCurrentQuantity(newQuantity);
-            dispatch(decreaseCartQuantity(cartItems, newQuantity))
+        if (quantity > 1) {
+            dispatch(decreaseCartQuantity(cartItems, toast));
         }
     };
 
@@ -81,7 +72,7 @@ const ItemContent = ({
 
             <div className="justify-self-center">
                 <SetQuantity
-                    quantity={currentQuantity}
+                    quantity={quantity}
                     cardCounter={true}
                     handleQtyIncrease={() => {handleQtyIncrease({
                         image,
@@ -104,7 +95,7 @@ const ItemContent = ({
             </div>
 
             <div className="justify-self-center lg:text-[17px] text-sm text-slate-600 font-semibold">
-                {formatPrice(Number(currentQuantity) * Number(specialPrice))}
+                {formatPrice(Number(quantity) * Number(specialPrice))}
             </div>
         </div>
     );

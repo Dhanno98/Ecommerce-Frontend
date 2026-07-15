@@ -47,68 +47,81 @@ export const fetchCategories = () => async (dispatch) => {
     }
 };
 
-export const addToCart = (data, qty = 1, toast) => 
-    (dispatch, getState) => {
-        // Find the product
-        const { products } = getState().products;
-        const getProduct = products.find(
-            (item) => item.productId === data.productId
-        );
+export const addToCart = (data, qty = 1, toast, navigate) => async(dispatch, getState) => {
+    const { user } = getState().auth;
+    if (!user) {
+        toast.error("Please login to add items to cart.");
+        navigate("/login");
+        return;
+    }
 
-        // Check for stocks
-        const isQuantityExists = getProduct.quantity >= qty;
+    // Find the product
+    const { products } = getState().products;
+    const getProduct = products.find(
+        (item) => item.productId === data.productId
+    );
 
-        // If in stock -> add
-        if (isQuantityExists) {
-            dispatch({ type: "ADD_CART", payload: {...data, quantity: qty}});
-            toast.success(`${data?.productName} added to the cart`);
-            localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
-        } else {
-            // error
-            toast.error("Out of stock");
-        }
-};
+    // Check for stocks
+    const isQuantityExists = getProduct.quantity >= qty;
+    if (!isQuantityExists) {
+        toast.error("Out of stock");
+        return;
+    }
 
-export const increaseCartQuantity = 
-    (data, toast, currentQuantity, setCurrentQuantity) => 
-    (dispatch, getState) => {
-        // Find the product
-        const { products } = getState().products;
-        
-        const getProduct = products.find(
-            (item) => item.productId === data.productId
-        );
+    dispatch({ type: "ADD_TO_CART_LOADING", payload: data.productId, });
 
-        const isQuantityExists = getProduct.quantity >= currentQuantity + 1;
-
-        if (isQuantityExists) {
-            const newQuantity = currentQuantity + 1;
-            setCurrentQuantity(newQuantity);
-
-            dispatch({
-                type: "ADD_CART",
-                payload: {...data, quantity: newQuantity + 1},
-            });
-
-            localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
-        } else {
-            toast.error("Quantity Reached to Limit");
-        }
-};
-
-export const decreaseCartQuantity = 
-    (data, newQuantity) => (dispatch, getState) => {
-        dispatch({
-            type: "ADD_CART",
-            payload: {...data, quantity: newQuantity},
-        });
-        localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
+    try {
+        await api.post(`/carts/products/${data.productId}/quantity/${qty}`);
+        await dispatch(getUserCart(false));
+        toast.success(`${data?.productName} added to the cart`);
+    } catch (error) {
+        toast.error(error?.response?.data?.message || "Unable to add item to cart");
+    } finally {
+        dispatch({ type: "ADD_TO_CART_FINISHED" })
+    }
 }
 
-export const removeFromCart = (data, toast) => (dispatch, getState) => {
-    dispatch({type: "REMOVE_CART", payload: data});
-    toast.success(`${data.productName} removed from cart`);
-    localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
+export const increaseCartQuantity = (data, toast) => async (dispatch) => {
+    try {
+        await api.put(`/cart/products/${data.productId}/quantity/add`);
+
+        await dispatch(getUserCart(false));
+
+    } catch (error) {
+        toast.error(
+            error?.response?.data?.message ||
+            "Quantity Reached to Limit"
+        );
+    }
+};
+
+export const decreaseCartQuantity = (data, toast) => async (dispatch) => {
+    try {
+        await api.put(`/cart/products/${data.productId}/quantity/delete`);
+
+        await dispatch(getUserCart(false));
+
+    } catch (error) {
+        toast.error(
+            error?.response?.data?.message ||
+            "Unable to decrease quantity"
+        );
+    }
+}
+
+export const removeFromCart = (data, toast) => async (dispatch) => {
+    try {
+        await api.delete(`/cart/products/${data.productId}`);
+
+        await dispatch(getUserCart(false));
+
+        toast.success(`${data.productName} removed from cart`);
+    } catch (error) {
+        toast.error(
+            error?.response?.data?.message ||
+            "Unable to remove item from cart"
+        );
+    }
 }
 
 export const authenticateSignInUser 
@@ -146,8 +159,15 @@ export const registerNewUser
 };
 
 export const logOutUser = (navigate) => (dispatch) => {
+    dispatch({ type: "CLEAR_CART" });
+    dispatch({ type: "REMOVE_CHECKOUT_ADDRESS" });
+    dispatch({ type: "REMOVE_CLIENT_SECRET_ADDRESS" });
     dispatch({ type: "LOG_OUT" });
+
     localStorage.removeItem("auth");
+    localStorage.removeItem("CHECKOUT_ADDRESS");
+    localStorage.removeItem("client-secret");
+
     navigate("/login");
 };
 
@@ -176,7 +196,7 @@ export const addUpdateUserAddress =
 export const getUserAddresses = () => async (dispatch, getState) => {
     try {
         dispatch({ type:"IS_FETCHING" });
-        const { data } = await api.get(`/addresses`);
+        const { data } = await api.get(`/users/addresses`);
         dispatch({type: "USER_ADDRESS", payload: data});
         dispatch({ type:"IS_SUCCESS" });
     } catch (error) {
@@ -243,19 +263,23 @@ export const createUserCart = (sendCartItems) => async (dispatch, getState) => {
     }
 };
 
-export const getUserCart = () => async (dispatch, getState) => {
+export const getUserCart = (showLoader = true) => async (dispatch, getState) => {
     try {
-        dispatch({ type:"IS_FETCHING" });
+        if (showLoader) {
+            dispatch({ type:"IS_FETCHING" });
+        }
         const { data } = await api.get('/carts/users/cart')
 
         dispatch({
             type: "GET_USER_CART_PRODUCTS",
-            payload: data.products,
+            payload: data.cartItems,
             totalPrice: data.totalPrice,
             cartId: data.cartId
         });
-        localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
-        dispatch({ type: "IS_SUCCESS" });
+
+        if (showLoader) {
+            dispatch({ type: "IS_SUCCESS" });
+        }
     } catch (error) {
         console.log(error);
         dispatch({ 
@@ -282,15 +306,14 @@ export const createStripePaymentSecret
 export const stripePaymentConfirmation
     = (sendData, setErrorMessage, setLoading, toast) => async (dispatch, getState) => {
         try {
-            const response = await api.post("/order/users/payments/online", sendData);
+            const response = await api.post("/order/users", sendData);
             console.log(response);
             if (response.data) {
                 console.log("IN IF");
                 localStorage.removeItem("CHECKOUT_ADDRESS");
-                localStorage.removeItem("cartItems");
                 localStorage.removeItem("client-secret");
                 dispatch({ type: "REMOVE_CLIENT_SECRET_ADDRESS" });
-                dispatch({ type: "CLEAR_CART" });
+                await dispatch(getUserCart(false));
                 toast.success("Order Accepted");
             } else {
                 setErrorMessage("Payment Failed. Please try again");
@@ -526,7 +549,7 @@ export const getAllSellersDashboard = (queryString) => async (dispatch, getState
     const { user } = getState().auth;
     try {
         dispatch({ type:"IS_FETCHING" });
-        const { data } = await api.get(`/auth/sellers?${queryString}`);
+        const { data } = await api.get(`/auth/admin/sellers?${queryString}`);
         dispatch({
             type: "GET_SELLERS",
             payload: data["content"], 
