@@ -569,7 +569,8 @@ export const addNewDashboardSeller =
     (sendData, toast, reset, setOpen, setLoader) => async (dispatch) => {
     try {
         setLoader(true);
-        await api.post(`/auth/signup`, sendData);
+        const { data } = await api.post(`/auth/signup`, sendData);
+        await api.post(`/auth/admin/users/${data.userId}/promote`, { role: "ROLE_SELLER" })
         reset();
         toast.success("Seller registered successfully");
 
