@@ -8,9 +8,8 @@ import { formatPrice } from "../../utils/formatPrice";
 const Cart = () => {
     const dispatch = useDispatch();
     const { cart } = useSelector((state) => state.carts);
-    const newCart= { ...cart };
     
-    newCart.totalPrice = cart?.reduce(
+    const totalPrice = cart?.reduce(
         (acc, cur) => acc + Number(cur?.specialPrice) * Number(cur?.quantity), 0
     );
 
@@ -56,7 +55,7 @@ const Cart = () => {
                 <div className="flex text-sm gap-1 flex-col">
                     <div className="flex justify-between w-full md:text-lg text-sm font-semibold">
                         <span>Subtotal</span>
-                        <span>{formatPrice(newCart?.totalPrice)}</span>
+                        <span>{formatPrice(totalPrice)}</span>
                     </div>
 
                     <p className="text-slate-500">

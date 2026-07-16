@@ -20,11 +20,14 @@ export const authReducer = (state = initialState, action) => {
         case "CLIENT_SECRET":
             return { ...state, clientSecret: action.payload };
         case "REMOVE_CLIENT_SECRET_ADDRESS":
-            return { ...state, clientSecret: null, selectUserCheckoutAddress: null };
+            return { ...state, clientSecret: null, selectedUserCheckoutAddress: null };
         case "LOG_OUT":
             return { 
+                ...state,
                 user: null,
-                address: null,
+                address: [],
+                clientSecret: null,
+                selectedUserCheckoutAddress: null
             };
             
         default:

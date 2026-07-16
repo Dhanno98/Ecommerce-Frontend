@@ -6,7 +6,7 @@ import Navbar from './components/shared/Navbar';
 import About from './components/About';
 import Contact from './components/Contact';
 import { Toaster } from 'react-hot-toast';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Cart from './components/cart/Cart';
 import LogIn from './components/auth/LogIn';
 import PrivateRoute from './components/PrivateRoute';
@@ -19,8 +19,19 @@ import AdminProducts from './components/admin/products/AdminProducts';
 import Sellers from './components/admin/sellers/Sellers';
 import Category from './components/admin/categories/Category';
 import Orders from './components/admin/orders/Orders';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserCart } from './store/actions';
 
 function App() {
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(getUserCart(false));
+    }
+  }, [user, dispatch]);
+
   return (
       <React.Fragment>
       <Router>

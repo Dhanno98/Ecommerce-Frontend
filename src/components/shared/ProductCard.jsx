@@ -2,9 +2,10 @@ import { useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import ProductViewModal from "./ProductViewModal";
 import truncateText from "../../utils/truncateText";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../store/actions";
 import toast from "react-hot-toast";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const ProductCard = ({
     productId,
@@ -18,10 +19,12 @@ const ProductCard = ({
     about = false,
 }) => {
     const [openProductViewModal, setOpenProductViewModal] = useState(false);
-    const btnLoader = false;
     const [selectedViewProduct, setSelectedViewProduct] = useState("");
     const isAvailable = quantity && Number(quantity) > 0;
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { addingProductId } = useSelector(state => state.errors);
+    const isAdding = addingProductId === productId;
 
     const handleProductView = (product) => {
         if (!about) {
@@ -31,7 +34,7 @@ const ProductCard = ({
     };
 
     const addToCartHandler = (cartItems) => {
-        dispatch(addToCart(cartItems, 1, toast));
+        dispatch(addToCart(cartItems, 1, toast, navigate));
     };
 
     return (
@@ -97,7 +100,7 @@ const ProductCard = ({
                     )}
 
                     <button 
-                        disabled={!isAvailable || btnLoader}
+                        disabled={!isAvailable || isAdding}
                         onClick={() => addToCartHandler({
                             image,
                             productName, 
@@ -110,7 +113,7 @@ const ProductCard = ({
                         className={`bg-blue-500 ${isAvailable ? "opacity-100 hover:bg-blue-600" : "opacity-70"} 
                                     cursor-pointer text-white py-2 px-3 rounded-lg items-center transition-colors duration-300 w-36 flex justify-center`}>
                             <FaShoppingCart className="mr-2"/>            
-                            {isAvailable ? "Add to Cart" : "Stock Out"}
+                            {isAdding ? "Adding..." : isAvailable ? "Add to Cart" : "Stock Out"}
                     </button>
                 </div>
             )}

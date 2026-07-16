@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom'
 import Skeleton from '../shared/Skeleton';
@@ -11,29 +11,31 @@ const PaymentConfirmation = () => {
     const searchParams = new URLSearchParams(location.search);
     const dispatch = useDispatch();
     const [errorMessage, setErrorMessage] = useState("");
-    const { cart } = useSelector((state) => state.carts);
     const [loading, setLoading] = useState(false);
 
     const paymentIntent = searchParams.get("payment_intent");
     const clientSecret = searchParams.get("payment_intent_client_secret");
     const redirectStatus = searchParams.get("redirect_status");
     const { selectedUserCheckoutAddress } = useSelector((state) => state.auth);
+    const orderPlacedRef = useRef(false);
 
     useEffect(() => {
-        if (paymentIntent && clientSecret && redirectStatus && cart && cart?.length > 0) {
+        if (!orderPlacedRef.current && 
+            paymentIntent && 
+            clientSecret && 
+            redirectStatus === "succeeded" && 
+            selectedUserCheckoutAddress?.addressId) {
             const sendData = {
                 addressId: selectedUserCheckoutAddress.addressId,
-                pgName: "Stripe",
-                pgPaymentId: paymentIntent,
-                pgStatus: "succeeded",
-                pgResponseMessage: "Payment Successful"
+                paymentMethod: "CARD",
+                paymentIntentId: paymentIntent,
             };
             console.log(selectedUserCheckoutAddress);
             console.log(sendData);
-
+            orderPlacedRef.current = true;
             dispatch(stripePaymentConfirmation(sendData, setErrorMessage, setLoading, toast));
         }
-    }, [paymentIntent, clientSecret, redirectStatus, cart]);
+    }, [paymentIntent, clientSecret, redirectStatus, selectedUserCheckoutAddress, dispatch]);
 
     return (
         <div className='min-h-screen flex items-center justify-center'>
