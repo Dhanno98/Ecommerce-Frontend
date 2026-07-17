@@ -40,6 +40,10 @@ export const adminProductTableColumn = (
         headerAlign: "center",
         align: "center",
         editable: false,
+        valueFormatter: (value) =>
+        `$${Number(value).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+        })}`,
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal border",
         renderHeader: (params) => <span className="text-center">Price</span>,
@@ -64,6 +68,10 @@ export const adminProductTableColumn = (
         headerAlign: "center",
         align: "center",
         editable: false,
+        valueFormatter: (value) =>
+        `$${Number(value).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+        })}`,
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal border",
         renderHeader: (params) => (
@@ -154,7 +162,8 @@ export const adminOrderTableColumn = (handleEdit) =>  [
         headerAlign: "center",
         editable: false,
         headerClassName: "text-black font-semibold border",
-        cellClassName: "text-slate-700 font-normal border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        align: "center",
         renderHeader: (params) => <span className='text-center'>Order ID</span>
     },
     {
@@ -181,6 +190,10 @@ export const adminOrderTableColumn = (handleEdit) =>  [
         editable: false,
         sortable: true,
         headerAlign: "center",
+        valueFormatter: (value) =>
+        `$${Number(value).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+        })}`,
         headerClassName: "text-black font-semibold text-center border",
         cellClassName: "text-slate-700 font-normal border text-center",
         renderHeader: (params) => <span>Total Amount</span>,
@@ -347,4 +360,136 @@ export const adminSellerTableColumn = (
         renderHeader: (params) => <span>Email</span>,
     },
     
+];
+
+export const userOrderTableColumn = () =>  [
+    { 
+        sortable: false,
+        disableColumnMenu: true,
+        field: "id",
+        headerName: "orderId",
+        flex: 1,
+        minWidth: 100,
+        headerAlign: "center",
+        editable: false,
+        headerClassName: "text-black font-semibold border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        align: "center",
+        renderHeader: (params) => <span className='text-center'>Order ID</span>
+    },
+    {
+        // Column for showing total amount of the order
+        disableColumnMenu: true,
+        field: "totalAmount",
+        headerName: "Total Amount",
+        flex: 1,
+        align: "center",
+        minWidth: 200,
+        editable: false,
+        sortable: true,
+        headerAlign: "center",
+        valueFormatter: (value) =>
+        `$${Number(value).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+        })}`,
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Total Amount</span>,
+    },
+    {
+        // Column to display order states (e.g., Pending, Shipped).
+        disableColumnMenu: true,
+        field: "status",
+        headerName: "Status",
+        flex: 1,
+        align: "center",
+        minWidth: 200,
+        editable: false,
+        sortable: false,
+        headerAlign: "center",
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Status</span>,
+    },
+    {
+        // Column for order creation date.
+        disableColumnMenu: true,
+        field: "date",
+        headerName: "Order Date",
+        flex: 1,
+        align: "center",
+        minWidth: 300,
+        editable: false,
+        sortable: false,
+        headerAlign: "center",
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Order Date</span>,
+    },
+];
+
+export const sellerOrderTableColumn = (handleEdit) =>  [
+    { 
+        sortable: false,
+        disableColumnMenu: true,
+        field: "id",
+        headerName: "orderId",
+        flex: 1,
+        minWidth: 180,
+        headerAlign: "center",
+        editable: false,
+        headerClassName: "text-black font-semibold border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        align: "center",
+        renderHeader: (params) => <span className='text-center'>Order ID</span>
+    },
+    {
+        // Column for showing total amount of the order
+        disableColumnMenu: true,
+        field: "sellerAmount",
+        headerName: "Seller Amount",
+        flex: 1,
+        align: "center",
+        minWidth: 200,
+        editable: false,
+        sortable: true,
+        headerAlign: "center",
+        valueFormatter: (value) =>
+        `$${Number(value).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+        })}`,
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Seller Amount</span>,
+    },
+    {
+        // Column to display order states (e.g., Pending, Shipped).
+        disableColumnMenu: true,
+        field: "status",
+        headerName: "Status",
+        flex: 1,
+        align: "center",
+        minWidth: 200,
+        editable: false,
+        sortable: false,
+        headerAlign: "center",
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Status</span>,
+    },
+    {
+        // Column for order creation date.
+        disableColumnMenu: true,
+        field: "date",
+        headerName: "Order Date",
+        flex: 1,
+        align: "center",
+        minWidth: 200,
+        editable: false,
+        sortable: false,
+        headerAlign: "center",
+        headerClassName: "text-black font-semibold text-center border",
+        cellClassName: "text-slate-700 font-normal border text-center",
+        renderHeader: (params) => <span>Order Date</span>,
+    },
 ];

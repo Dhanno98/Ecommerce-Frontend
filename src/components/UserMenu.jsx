@@ -50,22 +50,21 @@ const UserMenu = () => {
                     },
                 }}
             >
-                <Link to="/profile">
-                    <MenuItem className="flex gap-2" 
-                        onClick={handleClose}>
-                            <BiUser className="text-xl" />
-                            <span className="font-bold text-[16px] mt-1">
-                                {user?.username}
-                            </span>
-                    </MenuItem>
-                </Link>
+                <MenuItem className="flex gap-2" 
+                    disableRipple
+                    sx={{ cursor: "default" }}>
+                        <BiUser className="text-xl" />
+                        <span className="font-bold text-[16px] mt-1">
+                            {user?.username}
+                        </span>
+                </MenuItem>
 
                 <Link to="/profile/orders">
                     <MenuItem className="flex gap-2" 
                         onClick={handleClose}>
                             <FaShoppingCart className="text-xl" />
                             <span className="font-semibold">
-                                Order
+                                Orders
                             </span>
                     </MenuItem>
                 </Link>

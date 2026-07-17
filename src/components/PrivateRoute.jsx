@@ -8,11 +8,25 @@ const PrivateRoute = ({ publicPage = false, adminOnly = false }) => {
     const isSeller = user && user?.roles?.includes("ROLE_SELLER");
     const location = useLocation();
 
+    // Public pages (login/register)
     if (publicPage) {
-        return user ? <Navigate to="/" /> : <Outlet />
+        return user ? <Navigate to="/" replace /> : <Outlet />
     }
 
+    // User must be logged in
+    if (!user) {
+        return <Navigate to="/login" replace />
+    }
+
+    // Admin Routes
     if (adminOnly) {
+
+        // Customer cannot access admin pages
+        if (!isAdmin && !isSeller) {
+            return <Navigate to="/" replace />
+        }
+
+        // Seller restrictions
         if (isSeller && !isAdmin) {
             const sellerAllowedPaths = ["/admin/orders", "/admin/products"];
             const sellerAllowed = sellerAllowedPaths.some(path => 
@@ -24,11 +38,7 @@ const PrivateRoute = ({ publicPage = false, adminOnly = false }) => {
         }
     }
 
-    if (!isAdmin && !isSeller) {
-        return <Navigate to="/"/>
-    }
-
-    return user ? <Outlet /> : <Navigate to="/login" />
-    }
+    return <Outlet />
+}
 
 export default PrivateRoute

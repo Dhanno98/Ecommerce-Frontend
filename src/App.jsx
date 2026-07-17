@@ -21,6 +21,7 @@ import Category from './components/admin/categories/Category';
 import Orders from './components/admin/orders/Orders';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserCart } from './store/actions';
+import UserOrders from "./components/user/orders/UserOrders";
 
 function App() {
   const dispatch = useDispatch();
@@ -46,6 +47,7 @@ function App() {
           <Route path='/' element={<PrivateRoute />}>
             <Route path='/checkout' element={ <Checkout /> }/>
             <Route path='/order-confirm' element={ <PaymentConfirmation /> }/>
+            <Route path="/profile/orders" element={<UserOrders />} />
           </Route>
 
           <Route path='/' element={<PrivateRoute publicPage />}>

@@ -105,9 +105,15 @@ const AdminProducts = () => {
         </div>
 
       {!emptyProduct && (
-        <h1 className='text-slate-800 text-3xl text-center font-bold pb-6 uppercase'>
-          All Products
-        </h1>
+        isAdmin ? (
+          <h1 className='text-slate-800 text-3xl text-center font-bold pb-6 uppercase'>
+            All Products
+          </h1>
+        ) : (
+          <h1 className='text-slate-800 text-3xl text-center font-bold pb-6 uppercase'>
+            Seller Products
+          </h1>
+        )
       )}
       {isLoading ? (
         <Loader />
