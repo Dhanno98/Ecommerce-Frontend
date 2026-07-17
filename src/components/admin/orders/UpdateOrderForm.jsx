@@ -11,17 +11,17 @@ import { updateOrderStatusFromDashboard } from '../../../store/actions';
 import toast from 'react-hot-toast';
 
 const ORDER_STATUSES = [
-    "Pending",
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
-    "Accepted"
+    "CREATED",
+    "CONFIRMED",
+    "PAID",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED"
 ];
 
 const UpdateOrderForm = ({ setOpen, selectedId, selectedItem, loader, setLoader }) => {
 
-    const [orderStatus, setOrderStatus] = useState(selectedItem?.status || 'Accepted');
+    const [orderStatus, setOrderStatus] = useState(selectedItem?.status || 'CREATED');
     const [error, setError] = useState("");
     const dispatch = useDispatch();
 
