@@ -66,7 +66,7 @@ const Filter = ({categories}) => {
     return (
         <div className="flex lg:flex-row flex-col-reverse lg:justify-between justify-center items-center gap-4">
             {/* SEARCH BAR */}
-            <div className="relative flex items-center 2xl:w-[450px] sm:w-[420px] w-full">
+            <div className="relative flex items-center 2xl:w-112.5 sm:w-105 w-full">
                 <input 
                     type="text"
                     placeholder="Search Products"
@@ -84,7 +84,7 @@ const Filter = ({categories}) => {
                     size="small">
                         <InputLabel id="category-select-label">Category</InputLabel>
                         <Select
-                            className="min-w-[120px] text-slate-800 border-slate-700"
+                            className="min-w-30 text-slate-800 border-slate-700"
                             labelId="category-select-label"
                             value={category}
                             onChange={handleCategoryChange}

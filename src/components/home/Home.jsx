@@ -33,7 +33,7 @@ const Home = () => {
                 {isLoading ? (
                     <Loader />
                 ) : errorMessage ? (
-                    <div className="flex justify-center items-center h-[200px]">
+                    <div className="flex justify-center items-center h-50">
                         <FaExclamationTriangle className="text-slate-800 text-3xl mr-2" />
                         <span className="text-slate-800 text-lg font-medium">
                             {errorMessage}

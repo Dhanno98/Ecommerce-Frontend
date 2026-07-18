@@ -48,7 +48,7 @@ const PaymentForm = ({ clientSecret, totalPrice }) => {
                     )}
 
                     <button
-                        className='text-white w-full px-5 py-[10px] bg-black mt-2 rounded-md font-bold disabled:opacity-50 disabled:animate-pulse cursor-pointer'
+                        className='text-white w-full px-5 py-2.5 bg-black mt-2 rounded-md font-bold disabled:opacity-50 disabled:animate-pulse cursor-pointer'
                         disabled={!stripe || isLoading}>
                             {!isLoading ? `Pay $${Number(totalPrice).toFixed(2)}` 
                                 : "Processing" }

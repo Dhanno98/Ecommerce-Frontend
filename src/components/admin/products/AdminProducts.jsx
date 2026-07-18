@@ -16,9 +16,6 @@ import ProductViewModal from '../../shared/ProductViewModal';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 const AdminProducts = () => {
-    // const products = [ { "productId": 1, "productName": "Gaming Laptop GX", "image": "http://localhost:8080/images/501aafa3-a25d-4491-bf34-18b404d5f474.webp", "description": "High-performance gaming laptop with a 4K display and powerful GPU", "quantity": 26, "price": 1200.0, "discount": 20.0, "specialPrice": 960.0 }, { "productId": 2, "productName": "iPhone 16 Pro Max", "image": "http://localhost:8080/images/82017977-03c4-4049-bd52-f3277300f804.jpg", "description": "High-performance phone with a 4K display and powerful camera", "quantity": 20, "price": 1400.0, "discount": 25.0, "specialPrice": 1050.0 } ];
-    // const pagination = {"pageNumber": 0, "pageSize": 50, "totalElements": 9, "totalPages": 1, "lastPage": true};
-
     const { products, pagination } = useSelector((state) => state.products);
     const { isLoading, errorMessage } = useSelector((state) => state.errors);
     const [currentPage, setCurrentPage] = useState(
