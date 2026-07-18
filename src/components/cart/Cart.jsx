@@ -65,7 +65,7 @@ const Cart = () => {
                     <Link className="w-full flex justify-end" to="/checkout">
                         <button
                             onClick={() => {}}
-                            className="font-semibold w-[300px] py-2 px-4 rounded-sm bg-custom-blue text-white flex items-center justify-center gap-2 hover:text-gray-300 transition duration-500 cursor-pointer">
+                            className="font-semibold w-75 py-2 px-4 rounded-sm bg-custom-blue text-white flex items-center justify-center gap-2 hover:text-gray-300 transition duration-500 cursor-pointer">
                             <MdShoppingCart size={20}/>                                
                             Checkout
                         </button>

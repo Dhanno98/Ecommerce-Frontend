@@ -14,10 +14,6 @@ import { deleteCategory } from '../../../store/actions';
 import toast from 'react-hot-toast';
 
 const Category = () => {
-
-    // const categories = [ { "categoryId": 1, "categoryName": "Laptop" }, { "categoryId": 2, "categoryName": "Smartphones" }, { "categoryId": 3, "categoryName": "Electronics" } ];
-    // const pagination = {"pageNumber": 0, "pageSize": 8, "totalElements": 8, "totalPages": 1, "lastPage": true};
-
     const { categories, pagination } = useSelector((state) => state.products);
     const { isLoading, errorMessage } = useSelector((state) => state.errors);
     const [currentPage, setCurrentPage] = useState(
