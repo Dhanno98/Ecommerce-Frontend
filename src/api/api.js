@@ -9,7 +9,13 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(localStorage.getItem("auth"));
-        if (auth?.jwtToken) {
+
+        const isAuthEndpoint = 
+        config.url === "/auth/signin" || 
+        config.url === "/auth/signup" ||
+        config.url === "/auth/refresh";
+
+        if (auth?.jwtToken && !isAuthEndpoint) {
             config.headers.Authorization = `Bearer ${auth.jwtToken}`;
         }
         return config;
@@ -17,25 +23,58 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Runs before response
-let loggingOut = false;
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        if (error.response?.status === 401 && !loggingOut) {
-            loggingOut = true;
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
 
-            localStorage.removeItem("auth");
-            localStorage.removeItem("CHECKOUT_ADDRESS");
-            localStorage.removeItem("client-secret");
+        // Only handle 401 responses once
+        if (error.response?.status === 401 &&
+            !originalRequest?._retry &&
+            !originalRequest?._skipAuthRefresh
+        ) {
+            originalRequest._retry = true;
 
-            store.dispatch({
-                type:"LOG_OUT"
-            });
+            try {
+                const auth = JSON.parse(localStorage.getItem("auth"));
+                const refreshToken = auth?.refreshToken;
 
-            window.location.replace="/login";
+                if (!refreshToken) {
+                    throw new Error("No refresh token available");
+                }
+
+                const { data } = await api.post("/auth/refresh", { refreshToken }, { _skipAuthRefresh: true });
+
+                const updatedAuth = {
+                    ...auth, 
+                    jwtToken: data.jwtToken,
+                    refreshToken: data.refreshToken,
+                };
+
+                localStorage.setItem("auth", JSON.stringify(updatedAuth));
+
+                store.dispatch({
+                    type: "LOGIN_USER",
+                    payload: updatedAuth,
+                });
+
+                originalRequest.headers.Authorization = `Bearer ${data.jwtToken}`;
+
+                return api(originalRequest);
+
+            } catch (refreshError) {
+                localStorage.removeItem("auth");
+                localStorage.removeItem("CHECKOUT_ADDRESS");
+                localStorage.removeItem("client-secret");
+
+                store.dispatch({
+                    type: "LOG_OUT",
+                });
+
+                window.location.replace("/login");
+
+                return Promise.reject(refreshError);
+            }
         }
         return Promise.reject(error);
     }
