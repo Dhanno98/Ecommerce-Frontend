@@ -153,17 +153,29 @@ export const registerNewUser
         }
 };
 
-export const logOutUser = (navigate) => (dispatch) => {
-    dispatch({ type: "CLEAR_CART" });
-    dispatch({ type: "REMOVE_CHECKOUT_ADDRESS" });
-    dispatch({ type: "REMOVE_CLIENT_SECRET_ADDRESS" });
-    dispatch({ type: "LOG_OUT" });
+export const logOutUser = (navigate) => async (dispatch) => {
+    try {
+        const auth = JSON.parse(localStorage.getItem("auth"));
+        const refreshToken = auth?.refreshToken;
 
-    localStorage.removeItem("auth");
-    localStorage.removeItem("CHECKOUT_ADDRESS");
-    localStorage.removeItem("client-secret");
+        if (refreshToken) {
+            await api.post("/auth/signout", { refreshToken });
+        }
 
-    navigate("/login");
+    } catch (error) {
+        console.log("Signout failed:", error);
+    } finally {
+        dispatch({ type: "CLEAR_CART" });
+        dispatch({ type: "REMOVE_CHECKOUT_ADDRESS" });
+        dispatch({ type: "REMOVE_CLIENT_SECRET_ADDRESS" });
+        dispatch({ type: "LOG_OUT" });
+
+        localStorage.removeItem("auth");
+        localStorage.removeItem("CHECKOUT_ADDRESS");
+        localStorage.removeItem("client-secret");
+
+        navigate("/login");
+    }
 };
 
 export const addUpdateUserAddress = 
