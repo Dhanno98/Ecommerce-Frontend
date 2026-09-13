@@ -288,55 +288,73 @@ flowchart LR
 
 ## Authentication & Authorization
 
-The frontend implements authentication using the JWT-based REST APIs exposed by the Spring Boot backend. Users can register or log in through dedicated authentication pages. After a successful login, the backend returns the authenticated user's information together with a signed JWT. The frontend stores this information in the centralized Redux store and persists it in `localStorage`, allowing the user's authenticated session to be restored after a page refresh.
+The frontend implements authentication using the JWT-based REST APIs exposed by the Spring Boot backend. Users can register or log in through dedicated authentication pages. After a successful login, the backend returns the authenticated user's information together with a short-lived access JWT and a long-lived refresh token. The frontend stores this authentication information in the centralized Redux store and persists it in `localStorage`, allowing the user's authenticated session to be restored after a page refresh.
 
-Access to protected pages is enforced through the `PrivateRoute` component. Before rendering protected content, the application verifies the authenticated user stored in Redux and checks the assigned roles. Unauthenticated users are redirected to the login page, authenticated users are prevented from accessing public authentication pages, and role-based restrictions are applied to seller and administrator routes. When the user logs out, the application clears the authentication state, shopping cart, checkout information, and other session-related data before redirecting the user to the login page.
+The access JWT is attached to authenticated API requests through an Axios request interceptor. Since the access JWT is short-lived, the frontend automatically handles `401 Unauthorized` responses by using the stored refresh token to request a new access JWT. The backend rotates the refresh token during this process, returning a new access JWT and refresh token. The frontend updates its stored authentication information and retries the original request, allowing the user to remain logged in without manually signing in again.
+
+Access to protected pages is enforced through the `PrivateRoute` component. Before rendering protected content, the application verifies the authenticated user stored in Redux and checks the assigned roles. Unauthenticated users are redirected to the login page, authenticated users are prevented from accessing public authentication pages, and role-based restrictions are applied to seller and administrator routes.
+
+When the user logs out, the frontend sends the current refresh token to the backend signout endpoint. The backend revokes the refresh token, preventing it from being used to obtain new access tokens. The frontend then clears the authentication state, shopping cart, checkout information, and other session-related data before redirecting the user to the login page.
+
+### Token Lifecycle
+
+The frontend uses a short-lived access JWT together with a longer-lived refresh token to maintain authenticated sessions.
 
 ```mermaid
-flowchart LR
+sequenceDiagram
 
-    User["User"]
+    participant User
+    participant Frontend
+    participant Backend
+    participant Database
 
-    AuthPages["Login / Register"]
+    User->>Frontend: Login
+    Frontend->>Backend: POST /auth/signin
+    Backend->>Database: Authenticate user
+    Backend-->>Frontend: Access JWT + Refresh Token
+    Frontend->>Frontend: Store authentication data
 
-    Backend["Spring Boot<br/>Authentication API"]
+    User->>Frontend: Make API request
+    Frontend->>Backend: Request + Access JWT
+    Backend-->>Frontend: Response
 
-    LocalStorage["localStorage"]
+    Note over Frontend,Backend: Access JWT expires
 
-    Store["Redux Store<br/>(User, JWT, Roles)"]
+    Frontend->>Backend: API request + expired JWT
+    Backend-->>Frontend: 401 Unauthorized
 
-    PrivateRoute["PrivateRoute"]
+    Frontend->>Backend: POST /auth/refresh + Refresh Token
+    Backend->>Database: Validate & rotate refresh token
+    Backend-->>Frontend: New Access JWT + New Refresh Token
+    Frontend->>Frontend: Update stored authentication data
 
-    Protected["Protected Pages"]
+    Frontend->>Backend: Retry original request + New Access JWT
+    Backend-->>Frontend: Response
 
-    Logout["Logout"]
-
-    User --> AuthPages
-    AuthPages --> Backend
-    Backend --> LocalStorage
-    Backend --> Store
-
-    LocalStorage -.Restore Session.-> Store
-
-    Store --> PrivateRoute
-    PrivateRoute --> Protected
-
-    Protected --> Logout
-
-    Logout --> Store
-    Logout --> LocalStorage
+    User->>Frontend: Logout
+    Frontend->>Backend: POST /auth/signout + Refresh Token
+    Backend->>Database: Revoke Refresh Token
+    Backend-->>Frontend: Signout successful
+    Frontend->>Frontend: Clear authentication state
 ```
+
+The access JWT is used for normal API authentication, while the refresh token is used only to obtain a new access JWT after expiration.
+
+Refresh tokens are rotated whenever they are used. The previously used refresh token is revoked and a new refresh token is issued. This prevents a previously used refresh token from being reused after successful rotation.
 
 ### Authentication Components
 
 | Component | Responsibility |
 |-----------|----------------|
 | **Login & Registration Pages** | Collect user credentials and submit authentication requests to the Spring Boot backend. |
-| **Spring Boot Authentication API** | Authenticates users, generates JWTs, and returns the authenticated user's information. |
-| **localStorage** | Persists the authenticated user's information between browser sessions so authentication can be restored after a page refresh. |
+| **Spring Boot Authentication API** | Authenticates users, generates access JWTs and refresh tokens, and returns the authenticated user's information. |
+| **Axios Request Interceptor** | Attaches the current access JWT to authenticated API requests. |
+| **Axios Response Interceptor** | Handles `401 Unauthorized` responses by requesting new tokens using the refresh token, updating the stored authentication data, and retrying the failed request. |
+| **localStorage** | Persists the authenticated user's information, including the access JWT and refresh token, allowing the session to be restored after a page refresh. |
 | **Redux Store** | Maintains the authenticated user's information, assigned roles, checkout state, Stripe client secret, and other session-related application data. |
 | **PrivateRoute** | Protects authenticated routes, redirects unauthenticated users to the login page, prevents authenticated users from revisiting authentication pages, and enforces role-based access restrictions. |
 | **Protected Pages** | Authenticated pages such as checkout, order history, and role-specific seller and administrator dashboards that require successful authentication and authorization. |
+| **Logout Action** | Sends the refresh token to the backend for revocation and then clears the frontend authentication and session state. |
 
 ### Role Permissions
 
@@ -345,6 +363,7 @@ flowchart LR
 | **Customer** | Browse products, manage the shopping cart, complete checkout, and view personal order history. |
 | **Seller** | Access seller dashboard features for managing products and viewing seller orders associated with their products. |
 | **Administrator** | Access the complete administrative dashboard, including product, category, seller, and order management. |
+
 
 ## Application Flow
 
