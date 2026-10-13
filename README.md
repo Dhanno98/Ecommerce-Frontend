@@ -10,9 +10,11 @@
 
 A React-based frontend for the **Ecommerce** platform, built with **React**, **Redux Toolkit**, **Vite**, **Tailwind CSS**, and **Material UI**.
 
-The application provides a complete e-commerce experience, including product browsing, search and filtering, cart management, secure authentication, Stripe checkout, and order management. It also includes dedicated dashboards for sellers and administrators to manage products, categories, sellers, and orders.
+The application provides a complete e-commerce experience, including product browsing, search and filtering, cart management, secure authentication, online payments, and order management. It also includes dedicated dashboards for sellers and administrators to manage products, categories, sellers, and orders.
 
 The frontend communicates with the Spring Boot backend through REST APIs and follows a component-based architecture with reusable UI components, centralized state management, and role-based routing.
+
+🚀 **Live Application:** [https://dhanno-ecommerce.netlify.app/](https://dhanno-ecommerce.netlify.app/)
 
 > **Backend Repository:** [Ecommerce Backend API](https://github.com/Dhanno98/Ecommerce-Backend)
 
@@ -55,7 +57,7 @@ The project is structured to keep business logic, API interactions, state manage
 - View detailed product information in a modal without leaving the current page.
 - Add products to the shopping cart with real-time cart updates.
 - Manage cart quantities and proceed through the checkout flow.
-- Complete payments securely using Stripe Checkout.
+- Complete payments securely using Stripe Payment Intents and Stripe Elements.
 - View previous orders from a dedicated user dashboard.
 
 ### Authentication & Authorization
@@ -103,7 +105,7 @@ The project is structured to keep business logic, API interactions, state manage
 | **Component Library** | Material UI 7 | Pre-built UI components and layouts |
 | **Accessible UI Components** | Headless UI | Accessible, unstyled UI components |
 | **Forms** | React Hook Form | Form state management and validation |
-| **Payments** | Stripe Checkout | Secure online payment processing |
+| **Payments** | Stripe Payment Intents, Stripe Elements | Secure online payment processing |
 | **Tables** | MUI Data Grid | Administrative data tables and grids |
 | **Notifications** | React Hot Toast | User feedback and application notifications |
 | **Icons** | React Icons | Consistent icon library throughout the application |
@@ -384,7 +386,7 @@ flowchart LR
 
     F["Select Shipping Address"]
 
-    G["Stripe Checkout"]
+    G["Stripe Payment Intent"]
 
     H["Order Confirmation"]
 
@@ -409,9 +411,9 @@ flowchart LR
 | **Login / Register** | Authentication is required before products can be added to the shopping cart. New users can register while existing users authenticate using the backend's JWT-based authentication APIs. |
 | **Add to Cart** | Authenticated users can add products to their shopping cart. Unauthenticated users attempting this action are redirected to the login page. |
 | **Shopping Cart** | Authenticated users review selected products, update quantities, remove items, and proceed to checkout. |
-| **Checkout** | The frontend prepares the order for payment by collecting the required checkout information before redirecting the user to Stripe Checkout. |
+| **Checkout** | The frontend prepares the order for payment by collecting the required checkout information before initiating the Stripe payment flow. |
 | **Select Shipping Address** | Users select or create a shipping address that will be associated with the order. |
-| **Stripe Checkout** | The frontend redirects the user through the Stripe Checkout payment flow before completing the purchase. |
+| **Stripe Payment** | The frontend uses Stripe Elements to securely collect payment details and confirms the Payment Intent through Stripe. |
 | **Order Confirmation** | After successful payment, the frontend displays the payment confirmation and order completion page. |
 | **Order History** | Authenticated users can review previously placed orders from their account dashboard. |
 
@@ -582,7 +584,7 @@ The repository includes a `.env.example` file documenting all required variables
 Example:
 
 ```text
-VITE_API_BASE_URL=http://localhost:8080
+VITE_BACK_END_URL=http://localhost:8080
 VITE_FRONTEND_URL=http://localhost:5173
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxx
 ```
