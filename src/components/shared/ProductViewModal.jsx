@@ -3,6 +3,7 @@ import { Divider } from '@mui/material';
 import { useState } from 'react'
 import { MdClose, MdDone } from 'react-icons/md';
 import Status from './Status';
+import getImageUrl from '../../utils/getImageUrl';
 
 function ProductViewModal({open, setOpen, product, isAvailable}) {
 
@@ -13,7 +14,7 @@ function ProductViewModal({open, setOpen, product, isAvailable}) {
 
     return (
         <>
-        <Dialog open={open} as="div" className="relative z-10" onClose={close}>
+        <Dialog open={open} as="div" className="relative z-10" onClose={() => {}}>
             <DialogBackdrop className="fixed inset-0 bg-gray-500 opacity-75 transition-opacity" />
             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
@@ -24,7 +25,7 @@ function ProductViewModal({open, setOpen, product, isAvailable}) {
                     {image && (
                         <div className='flex justify-center aspect-3/2'>
                             <img 
-                                src={image}
+                                src={getImageUrl(image)}
                                 alt={productName}>
                             </img>
                         </div>

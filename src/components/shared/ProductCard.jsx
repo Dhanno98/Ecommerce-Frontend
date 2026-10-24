@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../store/actions";
 import toast from "react-hot-toast";
 import { Navigate, useNavigate } from "react-router-dom";
+import getImageUrl from "../../utils/getImageUrl";
 
 const ProductCard = ({
     productId,
@@ -54,7 +55,7 @@ const ProductCard = ({
                 className="w-full overflow-hidden aspect-3/2">
                 <img 
                 className="w-full h-full cursor-pointer transition-transform duration-300 transform hover:scale-105"
-                src={image}
+                src={getImageUrl(image)}
                 alt={productName}>
                 </img>
             </div>
