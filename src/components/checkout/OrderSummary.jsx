@@ -1,5 +1,6 @@
 import React from 'react'
 import { formatPriceCalculation } from '../../utils/formatPrice'
+import getImageUrl from '../../utils/getImageUrl'
 
 const OrderSummary = ({ totalPrice, cart, address, paymentMethod }) => {
     return (
@@ -50,7 +51,7 @@ const OrderSummary = ({ totalPrice, cart, address, paymentMethod }) => {
                             <div className='space-y-2'>
                                 {cart?.map((item) => (
                                     <div key={item?.productId} className='flex items-center'>
-                                        <img src={`${import.meta.env.VITE_BACK_END_URL}/images/${item?.image}`}
+                                        <img src={getImageUrl(item?.image)}
                                             alt='Product'
                                             className='w-12 h-12 rounded'>
                                         </img>
